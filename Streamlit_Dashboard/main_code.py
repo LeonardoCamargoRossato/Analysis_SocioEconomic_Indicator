@@ -21,6 +21,8 @@ st.write("Files in Directory:", os.listdir())
 # Function to load data
 @st.cache_data
 def load_data(file_path):
+    base_path = os.path.dirname(os.path.abspath(__file__))  # Caminho do script
+    file_path = os.path.join(base_path, "tabelas_csv", "df_Brazil.csv")
     return pd.read_csv(file_path, sep=',')
 
 # Country and dataset mapping
