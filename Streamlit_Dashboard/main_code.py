@@ -13,6 +13,11 @@ def set_page(page_name):
 
 #############################################################################
 
+import os
+st.write("Current Working Directory:", os.getcwd())
+st.write("Files in Directory:", os.listdir())
+
+
 # Function to load data
 @st.cache_data
 def load_data(file_path):
