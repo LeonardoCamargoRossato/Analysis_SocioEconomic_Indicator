@@ -3,12 +3,10 @@ from functions import *
 from colors_countries_and_regions import *
 
 def display_normal_scatters(df, file_name, country):
-    st.dataframe(df)
-    st.write(country)
 
     country_color = select_color_country(country)
     st.markdown(
-        "<h2 style='text-align: center; color: white;'>Analysis Options</h1>",
+        "<h4 style='text-align: left; color: white;'>Analysis Options</h4>",
         unsafe_allow_html=True
     )
 
@@ -18,8 +16,8 @@ def display_normal_scatters(df, file_name, country):
             <style>
             .full-width-button {
                 width: 100% !important;
-                height: 50px;
-                font-size: 16px;
+                height: 30px;
+                font-size: 14px;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -98,7 +96,7 @@ def display_normal_scatters(df, file_name, country):
         st.session_state.region_mode = "Per Country"
 
     # Row of buttons for display mode with dynamic styles
-    st.markdown("<hr style='border: 0.1 px solid white;'>", unsafe_allow_html=True)
+    # st.markdown("<hr style='border: 0.1 px solid white;'>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -130,8 +128,8 @@ def display_normal_scatters(df, file_name, country):
 
 
     # Add spacing and horizontal line
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("<hr style='border: 0.1 px solid white;'>", unsafe_allow_html=True)
+    # st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<hr style='border: 0.01 px solid white;'>", unsafe_allow_html=True)
 
     # Visualization Options with dynamic button styles
     st.markdown("<h4 style='text-align: center;'>Visualization Options:</h4>", unsafe_allow_html=True)
@@ -142,7 +140,7 @@ def display_normal_scatters(df, file_name, country):
         st.session_state.visualization_mode = "Plot Scatter"
 
     with col4:
-        if st.button("Plot Scatter", key="plot_scatter"):
+        if st.button("Scatter Complete (with colors)", key="plot_scatter"):
             st.session_state.visualization_mode = "Plot Scatter"
 
     with col5:
@@ -161,7 +159,7 @@ def display_normal_scatters(df, file_name, country):
     # Render the selected plot based on the active mode
     fig = None
     if st.session_state.visualization_mode == "Plot Scatter":
-        fig = Plot_Scatter(df_selected, axis_x, axis_y, color_column, hovername)
+        fig = Plot_Scatter(df_selected, axis_x, axis_y, color_column, hovername, country)
     elif st.session_state.visualization_mode == "Scatter without Regions":
         fig = Plot_Scatter_No_Regions(df_selected, axis_x, axis_y, hovername, specific_color)
     elif st.session_state.visualization_mode == "Scatter without Trendline":

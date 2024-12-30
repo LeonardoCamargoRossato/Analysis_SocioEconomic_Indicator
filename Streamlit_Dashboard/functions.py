@@ -1,29 +1,112 @@
-from libraries import px
+from libraries import px, go, np, make_subplots
 from colors_countries_and_regions import *
 
 # Plots Census2010 data against specified axes with trendline and color customization
-def Plot_Scatter(df, axis_x, axis_y, cor, hovername):
-    fig = px.scatter(data_frame=df, x=axis_x, y=axis_y, color=cor, trendline='ols', 
+def Plot_Scatter(df, axis_x, axis_y, cor, hovername,country):
+    fig = px.scatter(data_frame=df, x=axis_x, y=axis_y, color=cor, 
                      marginal_x="box", marginal_y="box", hover_name=hovername,
-                     template="simple_white",trendline_color_override="black", trendline_options=dict(log_x=True,log_y=True),
+                     template="simple_white",
                      log_x=True,log_y=True,height=500,width=800
                     )
-    fig.update_layout({
-        'plot_bgcolor': 'white',
-        'paper_bgcolor': 'white',
-        'xaxis': {
+    fig.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        xaxis={
             'title_font': {'color': 'black'},
             'tickfont': {'color': 'black'}
         },
-        'yaxis': {
+        yaxis={
             'title_font': {'color': 'black'},
             'tickfont': {'color': 'black'}
         },
-        'legend': {
-            'font': {'color': 'black'}
+        legend={
+            'font': {'color': 'black'},
+            'orientation': "h",  
+            'xanchor': "center",  
+            'x': 0.5, 'y': 1.2  
         }
-    })
+    )
     return fig
+
+
+# def Plot_Scatter(df, axis_x, axis_y, cor, hovername, country):
+#     # Obter o dicionário de cores para o país
+#     if country in macrorregion_color_map:
+#         color_map = macrorregion_color_map[country]
+#     else:
+#         raise ValueError(f"As cores para o país '{country}' não estão definidas.")
+
+#     # Criar o subplot para scatter plot
+#     fig = make_subplots(
+#         rows=1, cols=1, 
+#         shared_xaxes=True
+#     )
+    
+#     # Adicionar os pontos do scatter plot com as cores mapeadas
+#     unique_colors = df[cor].unique()
+#     for category in unique_colors:
+#         if category in color_map:
+#             category_color = color_map[category]
+#         else:
+#             category_color = "#000000"  # Cor padrão para valores não encontrados
+        
+#         filtered_df = df[df[cor] == category]
+#         fig.add_trace(
+#             go.Scatter(
+#                 x=filtered_df[axis_x],
+#                 y=filtered_df[axis_y],
+#                 mode='markers',
+#                 name=str(category),
+#                 marker=dict(color=category_color),
+#                 text=filtered_df[hovername]
+#             )
+#         )
+    
+#     # Calcular a trendline usando numpy.polyfit
+#     x_vals = df[axis_x]
+#     y_vals = df[axis_y]
+#     trendline = np.polyfit(np.log(x_vals), np.log(y_vals), 1)
+#     trend_x = np.linspace(x_vals.min(), x_vals.max(), 100)
+#     trend_y = np.exp(trendline[1]) * trend_x**trendline[0]
+    
+#     # Adicionar a trendline
+#     fig.add_trace(
+#         go.Scatter(
+#             x=trend_x, y=trend_y, mode='lines',
+#             name="Trendline", line=dict(color="black", dash="dash")
+#         )
+#     )
+    
+#     # Configuração do layout
+#     fig.update_layout(
+#         plot_bgcolor='white',
+#         paper_bgcolor='white',
+#         xaxis=dict(
+#             title=axis_x,
+#             title_font=dict(color='black'),
+#             tickfont=dict(color='black'),
+#             type="log"  # Eixo X em escala log
+#         ),
+#         yaxis=dict(
+#             title=axis_y,
+#             title_font=dict(color='black'),
+#             tickfont=dict(color='black'),
+#             type="log" 
+#         ),
+#         legend=dict(
+#             font=dict(color='black'),
+#             orientation="h", 
+#             xanchor="center",  
+#             x=0.5, y=1.15
+#         ),
+#         height=500, width=800, title_text="Scatter Plot with Log Trendline", title_x=0.5
+#     )
+    
+#     return fig
+
+
+
+
 
 # Plots Census2010 data without considering regions and without trendline
 def Plot_Scatter_Simple(df, axis_x, axis_y, hovername, color):
