@@ -1,4 +1,4 @@
-from libraries import st, pd
+from libraries import st, pd, os
 
 # Initialize session state for navigation and selected country
 if "page" not in st.session_state:
@@ -13,32 +13,26 @@ def set_page(page_name):
 
 #############################################################################
 
-import os
-st.write("Current Working Directory:", os.getcwd())
-st.write("Files in Directory:", os.listdir())
-
-
-# Function to load data
-@st.cache_data
-def load_data(file_path):
-    base_path = os.path.dirname(os.path.abspath(__file__))  # Caminho do script
-    file_path = os.path.join(base_path, "tabelas_csv", "df_Brazil.csv")
-    return pd.read_csv(file_path, sep=',')
-
 # Country and dataset mapping
 countries = {
     "Brazil": 'tabelas_csv/df_Brazil.csv',
-    "USA": 'tabelas_csv/df_USA.csv',
+    "USA": 'tabelas_csv/df_USA_Per_County.csv',
     "Peru": 'tabelas_csv/df_Peru.csv',
     "Mexico": 'tabelas_csv/df_Mexico.csv',
     "El Salvador": 'tabelas_csv/df_ElSalvador.csv',
     "Chile": 'tabelas_csv/df_Chile.csv'
 }
 
+# Function to load data
+def load_data(file_path):
+    base_path = os.path.dirname(os.path.abspath(__file__))  # Script Path 
+    file_path = os.path.join(base_path, file_name)
+    return pd.read_csv(file_path, sep=',')
+
 # Sidebar: Country Selector
 with st.sidebar:
     selected_country = st.selectbox(
-        "Selecione o País",
+        "Select Country",
         options=list(countries.keys()),
         index=list(countries.keys()).index(st.session_state.selected_country),
         key="country_selector"
@@ -50,7 +44,6 @@ with st.sidebar:
 # Load the selected country's data
 file_name = countries[st.session_state.selected_country]
 df = load_data(file_name)
-
 
 #############################################################################
 

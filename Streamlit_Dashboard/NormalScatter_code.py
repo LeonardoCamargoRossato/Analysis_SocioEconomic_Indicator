@@ -3,6 +3,8 @@ from functions import *
 from colors_countries_and_regions import *
 
 def display_normal_scatters(df, file_name, country):
+    st.dataframe(df)
+    st.write(country)
 
     country_color = select_color_country(country)
     st.markdown(
@@ -40,11 +42,33 @@ def display_normal_scatters(df, file_name, country):
 
         st.markdown(f"**Data File:** `{file_name}`")
 
+        if country == 'Brazil':
+            index_axis_x = 'Total_Pop_Absol'; index_axis_y = 'IDHM_2010'
+            index_color_column = 'Macroregioes'; index_hovername = 'Municipio'
+        elif country == 'USA':
+            index_axis_x = '2015_Tract_population'; index_axis_y = 'unadjusted_hdi'
+            index_color_column = 'Macroregion'; index_hovername = 'County_States'
+        elif country == 'Peru':
+            index_axis_x = 'Pop_2017'; index_axis_y = 'HDI_2017'
+            index_color_column = 'Macroregioes_Topografica'; index_hovername = 'City'
+        elif country == 'Mexico':
+            index_axis_x = 'Pop_Total_2010'; index_axis_y = 'IDH_2000'
+            index_color_column = 'Macroregioes'; index_hovername = 'Hovername'
+        elif country == 'El Salvador':
+            index_axis_x = 'Pop_total_2005'; index_axis_y = 'IDH_2005'
+            index_color_column = 'Macroregioes'; index_hovername = 'Comuna'
+        elif country == 'Chile':
+            index_axis_x = 'Población_2017'; index_axis_y = 'IDC_2020'
+            index_color_column = 'Macroregioes'; index_hovername = 'COMUNA'            
+        else:
+            index_axis_x = None; index_axis_y = None
+            index_color_column = None; index_hovername = None       
+
         st.header("Settings")
-        axis_x = st.selectbox("Select X-axis", options=df.columns)
-        axis_y = st.selectbox("Select Y-axis", options=df.columns)
-        color_column = st.selectbox("Select Color Column", options=[None] + list(df.columns))
-        hovername = st.selectbox("Select Hovername Column", options=list(df.columns))
+        axis_x = st.selectbox("Select X-axis", options=df.columns, index=list(df.columns).index(index_axis_x))
+        axis_y = st.selectbox("Select Y-axis", options=df.columns, index=list(df.columns).index(index_axis_y))
+        color_column = st.selectbox("Select Color Column", options=list(df.columns), index=list(df.columns).index(index_color_column))
+        hovername = st.selectbox("Select Hovername Column", options=list(df.columns), index=list(df.columns).index(index_hovername))
 
     # Display the DataFrame on the main screen
     if st.session_state.show_dataframe:
