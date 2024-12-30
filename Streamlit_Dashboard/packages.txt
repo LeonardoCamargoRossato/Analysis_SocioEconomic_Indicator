@@ -1,6 +1,0 @@
-libmupdf-dev
-libfreetype6-dev
-libpng-dev
-zlib1g-dev
-libopenjp2-7-dev
-libcairo2-dev
