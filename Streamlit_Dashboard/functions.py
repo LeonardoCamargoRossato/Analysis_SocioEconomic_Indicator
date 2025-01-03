@@ -261,3 +261,115 @@ def get_macrorregions_list(country):
     else:
         raise ValueError(f"The country '{country}' does not have defined macrorregions.")
 
+#
+#
+#
+#
+################################################################################################
+#  Cities Compare Code Functions
+################################################################################################
+#
+#
+#
+#
+
+def get_country_info(country):
+    """
+    Given a country name, returns a dictionary with country-specific column mappings.
+
+    Args:
+        country (str): Name of the country.
+
+    Returns:
+        dict: Dictionary containing keys `index_axis_x`, `index_axis_y`, `index_state_column`, and `index_hovername`.
+    """
+    if country == 'Brazil':
+        return {
+            'index_axis_x': 'Total_Pop_Absol',
+            'index_axis_y': 'IDHM_2010',
+            'index_state_column': 'UF',
+            'index_hovername': 'Municipio'
+        }
+    elif country == 'USA':
+        return {
+            'index_axis_x': '2015_Tract_population',
+            'index_axis_y': 'unadjusted_hdi',
+            'index_state_column': 'State',
+            'index_hovername': 'County_States'
+        }
+    elif country == 'Peru':
+        return {
+            'index_axis_x': 'Pop_2017',
+            'index_axis_y': 'HDI_2017',
+            'index_state_column': 'State',
+            'index_hovername': 'City'
+        }
+    elif country == 'Mexico':
+        return {
+            'index_axis_x': 'Pop_Total_2010',
+            'index_axis_y': 'IDH_2000',
+            'index_state_column': 'State',
+            'index_hovername': 'Hovername'
+        }
+    elif country == 'El Salvador':
+        return {
+            'index_axis_x': 'Pop_total_2005',
+            'index_axis_y': 'IDH_2005',
+            'index_state_column': 'State',
+            'index_hovername': 'Comuna'
+        }
+    elif country == 'Chile':
+        return {
+            'index_axis_x': 'Población_2017',
+            'index_axis_y': 'IDC_2020',
+            'index_state_column': 'REGIÓN',
+            'index_hovername': 'COMUNA'
+        }
+    else:
+        return {
+            'index_axis_x': None,
+            'index_axis_y': None,
+            'index_state_column': None,
+            'index_hovername': None
+        }
+    
+def create_interactive_scatter_go(df, axis_x, axis_y, hovername_city_column, color_city, color_country, selected_city):
+    # Filter valid values for logarithmic scale
+    df = df[(df[axis_x] > 0) & (df[axis_y] > 0)]
+
+    # Create the base figure
+    fig = go.Figure()
+
+    fig.add_trace( go.Scatter(x=df[axis_x], y=df[axis_y], mode='markers', marker=dict(color=color_country, size=8),
+                              name="All Cities", text=df[hovername_city_column], hoverinfo="text",
+                             )
+                 )
+    # Filter data for the selected city
+    selected_city_data = df[df[hovername_city_column] == selected_city]
+
+    if not selected_city_data.empty:
+        fig.add_trace(
+            go.Scatter(
+                x=selected_city_data[axis_x],
+                y=selected_city_data[axis_y],
+                mode="markers",
+                marker=dict(symbol="star", size=15, color="white", line=dict(color="black", width=2)),
+                name="Selected City",
+                text=selected_city_data[hovername_city_column],
+                hoverinfo="text",
+            )
+        )
+    else:
+        print(f"No valid data to plot for selected city: {selected_city}")
+
+    # Layout settings
+    fig.update_layout(
+        plot_bgcolor="white", paper_bgcolor="white", height=400, width=600,
+        xaxis=dict(title=axis_x, type="log", showgrid=True, gridcolor="black", title_font=dict(color="black"), tickfont=dict(color="black")),
+        yaxis=dict(title=axis_y, type="log", showgrid=True, gridcolor="black", title_font=dict(color="black"), tickfont=dict(color="black")),
+        legend=dict(title=dict(text="Legend", font=dict(color="black")), orientation="v", font=dict(color="black"), yanchor="bottom", 
+                    y=-1.0, xanchor="center", x=0.5)
+    )
+
+    return fig
+

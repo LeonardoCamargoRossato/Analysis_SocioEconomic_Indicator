@@ -1,10 +1,19 @@
-from libraries import st
+from libraries import *
 from functions import *
 from colors_countries_and_regions import *
 
-def display_normal_scatters(df, file_name, country):
+# Function to load data
+def load_data(file_name):
+    base_path = os.path.dirname(os.path.abspath(__file__))  # Script Path 
+    file_path = os.path.join(base_path, file_name)
+    return pd.read_csv(file_path, sep=',')
 
-    country_color = select_color_country(country)
+def display_normal_scatters(countries):
+
+    if "selected_country" not in st.session_state:
+        st.session_state.selected_country = "Brazil"
+
+    country_color = country_colors[st.session_state.selected_country]
     st.markdown(
         "<h4 style='text-align: left; color: white;'>Analysis Options</h4>",
         unsafe_allow_html=True
@@ -20,11 +29,24 @@ def display_normal_scatters(df, file_name, country):
                 font-size: 14px;
             }
             </style>
+                    
         """, unsafe_allow_html=True)
-
         # "Back to Main Dashboard" button
         if st.button("Back to Main Dashboard", key="back_to_main_dashboard", help="Return to the Main Dashboard", use_container_width=True):
             st.session_state.page = "Main Dashboard"
+
+
+        selected_country = st.selectbox(
+            "Select Country",
+            options=list(countries.keys()),
+            index=list(countries.keys()).index(st.session_state.selected_country),
+            key="country_selector"
+        )
+        st.session_state.selected_country = selected_country
+
+        # Load the selected country's data
+        file_name = countries[st.session_state.selected_country]
+        df = load_data(file_name)
 
         # Logic for viewing the DataFrame
         if "show_dataframe" not in st.session_state:
@@ -40,6 +62,8 @@ def display_normal_scatters(df, file_name, country):
 
         st.markdown(f"**Data File:** `{file_name}`")
 
+
+        country = st.session_state.selected_country
         if country == 'Brazil':
             index_axis_x = 'Total_Pop_Absol'; index_axis_y = 'IDHM_2010'
             index_color_column = 'Macroregioes'; index_hovername = 'Municipio'
@@ -61,6 +85,8 @@ def display_normal_scatters(df, file_name, country):
         else:
             index_axis_x = None; index_axis_y = None
             index_color_column = None; index_hovername = None       
+
+
 
         st.header("Settings")
         axis_x = st.selectbox("Select X-axis", options=df.columns, index=list(df.columns).index(index_axis_x))
@@ -152,7 +178,7 @@ def display_normal_scatters(df, file_name, country):
             st.session_state.visualization_mode = "Scatter without Trendline"
 
     with col7:
-        if st.button("Simple Scatter", key="simple_scatter"):
+        if st.button("Simple Scatter (Normal Scale)", key="simple_scatter"):
             st.session_state.visualization_mode = "Simple Scatter"
 
 
