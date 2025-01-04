@@ -5,3 +5,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import os as os
 import numpy as np
+import sys as sys
+from scipy.optimize import curve_fit
+import statsmodels.api as sm
+from math import *

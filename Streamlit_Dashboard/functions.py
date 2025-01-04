@@ -1,4 +1,4 @@
-from libraries import px, go, np, make_subplots
+from libraries import *
 from colors_countries_and_regions import *
 
 # Plots Census2010 data against specified axes with trendline and color customization
@@ -373,3 +373,189 @@ def create_interactive_scatter_go(df, axis_x, axis_y, hovername_city_column, col
 
     return fig
 
+#
+#
+#
+#
+################################################################################################
+#  B i n s c a t t e r s     P r o c e s s
+################################################################################################
+#
+#
+#
+#
+
+# Function to separate data into linear bins
+def separate_bins_by_n_values(n, df, axis_x):
+    min_value = df[axis_x].min()
+    max_value = df[axis_x].max()
+    return [min_value + i * (max_value - min_value) / n for i in range(n + 1)]
+
+# Function to separate data into exponential bins
+def separate_bins_by_exponential(n, df, axis_x):
+    bins = [df[axis_x].min()]
+    for i in range(10 * n):
+        bins.append(bins[i] * (np.e ** ((i + 1) / n) / np.e ** (i / n)))
+    return bins
+
+# Function to create a DataFrame based on bins and calculate the mean of each bin
+def create_bins_df(n, df, bin_separation_mode, axis_x, axis_y):
+    if bin_separation_mode == 'linear':
+        classes = separate_bins_by_n_values(n, df, axis_x)
+    elif bin_separation_mode == 'exponential':
+        classes = separate_bins_by_exponential(n, df, axis_x)
+    df['bins'] = pd.cut(df[axis_x], bins=classes, include_lowest=True,
+                        labels=['bin_' + str(i) for i in range(len(classes) - 1)])
+    df_bins = df.groupby('bins').agg({axis_x: 'mean', axis_y: 'mean'}).reset_index(drop=True)
+    return df_bins
+
+# Function to plot histograms and scatter plots of the bins
+def plot_bins_df(df_bins, df, axis_x, axis_y):
+    st.write("Data count by bin:")
+    st.dataframe(pd.DataFrame(df['bins'].value_counts()).sort_index().T.round(2))
+    st.write("Bin averages:")
+    st.dataframe(df_bins.T.round(2))
+    
+    fig = make_subplots(rows=3, cols=1)
+    fig.update_layout(title='Analysis ' + axis_y + ' x ' + axis_x + ' by bins',
+                      height=1000, width=1000,
+                      bargap=0.1, bargroupgap=0.2)
+    fig.add_trace(go.Histogram(x=df.sort_values('bins')['bins'], name='Histogram'), row=1, col=1)
+    non_nan_x = ~np.isnan(df_bins[axis_x])
+    non_nan_y = ~np.isnan(df_bins[axis_y])
+    for r in [2, 3]:
+        fig.add_trace(go.Scatter(x=df_bins[axis_x][non_nan_x], y=df_bins[axis_y][non_nan_y],
+                                 name='Linear Plot'), row=r, col=1)
+    fig.update_yaxes(title_text='Counts: number of municipalities in each bin', row=1, col=1)
+    fig.update_yaxes(title_text=axis_y + ' mean of bins', row=2, col=1)
+    fig.update_xaxes(title_text=axis_x + " mean of bins", type="log", row=3, col=1)
+    st.plotly_chart(fig)
+
+# Main function to create and plot graphs based on bins
+def create_and_plot_bins_graphs(n, df, bin_separation_mode, axis_x, axis_y):
+    df_bins = create_bins_df(n, df, bin_separation_mode, axis_x, axis_y)
+    plot_bins_df(df_bins, df, axis_x, axis_y)
+
+#
+#
+#
+################################################
+# Route for Calculating Binscatter Curve Fitting
+################################################
+
+# Linear fit function (in logarithmic scale)
+def linear_func(x, a, b):
+    return a * x + b
+
+# Function to plot the graph based on 'bins' and perform curve fitting
+def plot_bins_function_fit(df_bins, df, x_axis, y_axis, height=500, width=1000):
+    fig = make_subplots()
+    
+    non_nan_x = ~np.isnan(df_bins[x_axis])
+    non_nan_y = ~np.isnan(df_bins[y_axis])
+    
+    log_x = np.log(df_bins[x_axis][non_nan_x])
+    log_y = np.log(df_bins[y_axis][non_nan_y])
+    
+    # Performing curve fitting
+    popt, pcov = curve_fit(linear_func, log_x, log_y)
+    y_fit = np.exp(linear_func(log_x, *popt))
+
+    # Incorporating the equation into the legend
+    equation_text = f"Fit (y = {popt[0]:.2f}x + {popt[1]:.2f})"
+    
+    fig.add_trace(go.Scatter(x=df_bins[x_axis][non_nan_x], y=df_bins[y_axis][non_nan_y], 
+                             mode='markers+lines', name='Data'))
+    fig.add_trace(go.Scatter(x=df_bins[x_axis][non_nan_x], y=y_fit, mode='lines', 
+                             name=equation_text, line=dict(color='red')))
+    
+    fig.update_yaxes(title_text=f"Mean {y_axis} of the bins", type="log")
+    fig.update_xaxes(title_text=f"Mean {x_axis} of the bins", type="log")
+    fig.update_layout(template="simple_white", height=height, width=width)
+    
+    st.plotly_chart(fig)
+
+
+# Function to visualize interactive scatter plot
+def plot_interact(x_axis, y_axis, color, hover_name, df, height=500, width=1000):
+    fig = px.scatter(data_frame=df, x=x_axis, y=y_axis, color=color, hover_name=hover_name,
+                     log_x=True, log_y=True, template="simple_white", height=height, width=width)
+
+    log_x = np.log(df[x_axis])
+    log_y = np.log(df[y_axis])
+
+    model = sm.OLS(log_y, sm.add_constant(log_x)).fit()
+    predicted = model.predict(sm.add_constant(log_x))
+
+    fig.add_trace(go.Scatter(x=df[x_axis], y=np.exp(predicted), mode='lines',
+                             line=dict(color='black'), name="OLS Fit"))
+
+    st.plotly_chart(fig)
+
+# Main function to create and plot graphs based on 'bins'
+def binscatter_and_fit_curve(n, df, bin_separation_mode, x_axis, y_axis, height=500, width=1000):
+    df_bins = create_bins_df(n, df, bin_separation_mode, x_axis, y_axis)
+    plot_bins_function_fit(df_bins, df, x_axis, y_axis, height, width)
+
+################################################
+# Binscatter and Scatter: comparison ilustration
+################################################
+
+# Function to plot the graph based on 'bins' and perform curve fitting
+def plot_df_bins(df_bins, df, x_axis, y_axis, height, width, opacity):
+    fig = make_subplots()
+    
+    # Adding scatter plot for all points
+    fig.add_trace(go.Scatter(x=df[x_axis], y=df[y_axis], mode='markers', 
+                             marker=dict(color='black', opacity=opacity),
+                             name='All Points'))
+    
+    non_nan_x = ~np.isnan(df_bins[x_axis])
+    non_nan_y = ~np.isnan(df_bins[y_axis])
+    
+    log_x = np.log(df_bins[x_axis][non_nan_x])
+    log_y = np.log(df_bins[y_axis][non_nan_y])
+    
+    # Finding the index of the lowest y-axis value
+    idx_min_y = np.argmin(log_y)
+    
+    # Using only points from the lowest value onwards for fitting
+    log_x_adjusted = log_x[idx_min_y:]
+    log_y_adjusted = log_y[idx_min_y:]
+    
+    # Performing curve fitting with adjusted points
+    popt, pcov = curve_fit(linear_func, log_x_adjusted, log_y_adjusted)
+    
+    # Defining x and y values for the fitted line
+    x_fit = np.linspace(log_x_adjusted.iloc[0], max(log_x_adjusted), 100)
+    y_fit = linear_func(x_fit, *popt)
+
+    # Incorporating equation into the legend
+    C = np.exp(popt[1])
+    equation_text = f"Fit: y = {C:.2f}x^{popt[0]:.2f}"
+    
+    fig.add_trace(go.Scatter(x=df_bins[x_axis][non_nan_x], y=df_bins[y_axis][non_nan_y], 
+                             mode='markers+lines', name='Data', line=dict(color='blue', dash='dot', width=2), 
+                             marker=dict(color='orange', size=8)))
+    fig.add_trace(go.Scatter(x=np.exp(x_fit), y=np.exp(y_fit), mode='lines', 
+                             name=equation_text, line=dict(color='green', width=1)))
+
+        
+    fig.update_yaxes(title_text=y_axis + ' (average in bins)', type="log")
+    fig.update_xaxes(title_text=x_axis + " (average in bins)", type="log")
+    fig.update_layout(template="simple_white", height=height, width=width)
+    
+    # Saving figures as SVG and PNG
+#     fig.write_image("df_Peru_Bins.svg", scale=3)
+#     fig.write_image("df_Peru_Bins.png", scale=3)
+    st.plotly_chart(fig)
+
+
+# Main function to create and plot graphs based on 'bins'
+def create_and_plot_bins_graphs__scatter_x_binscatter(n, df, bin_separation_mode, x_axis, y_axis, height, width, opacity):
+    df_bins = create_bins_df(n, df, bin_separation_mode, x_axis, y_axis)
+    plot_df_bins(df_bins, df, x_axis, y_axis, height, width, opacity)
+    
+# # Wrapper function for interaction
+# def wrapper_plot_interact(x_axis, y_axis, color, hovername, df,height=500, width=1000):
+#     return plot_interact(x_axis, y_axis, color, hovername, df, height, width)

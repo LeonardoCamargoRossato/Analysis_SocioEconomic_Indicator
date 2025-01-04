@@ -1,4 +1,6 @@
 from libraries import *
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'utils')))
+# from layout_design import add_top_menu
 
 def main():
     st.set_page_config(page_title='City Comparison', page_icon="🏙️", layout="wide", initial_sidebar_state='auto', 
@@ -10,11 +12,69 @@ def main():
                                      "Plataform Courses: https://institutopensemais.com \n\n" \
                                      "More Infos: send a email leo.c.rossato@gmail.com"                                  
                        })
-    st.markdown('Econophysics Analysis: [Github Projects](https://github.com/LeonardoCamargoRossato/Papers_Supplementary_Info_SI/tree/main)  \
-                      | Papers Thesis:[Github Repository](https://github.com/LeonardoCamargoRossato/Analysis_SocioEconomic_Indicator/tree/main) \
-                      |  Plataform Courses: https://institutopensemais.com \
-                      |  About Author: [Portfolio](https://institutopensemais.com/saiba-mais-sobre-o-autor/) \
-              ')
+    # st.markdown('Econophysics Analysis: [Github Projects](https://github.com/LeonardoCamargoRossato/Papers_Supplementary_Info_SI/tree/main)  \
+    #                   | Papers Thesis:[Github Repository](https://github.com/LeonardoCamargoRossato/Analysis_SocioEconomic_Indicator/tree/main) \
+    #                   |  Plataform Courses: https://institutopensemais.com \
+    #                   |  About Author: [Portfolio](https://institutopensemais.com/saiba-mais-sobre-o-autor/) \
+    #           ')
+
+    st.markdown(
+        """
+        <style>
+        .top-menu {
+            background-color: #333;
+            padding: 5px;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .top-menu a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        .top-menu a:hover {
+            text-decoration: underline;
+        }
+        </style>
+        <div class="top-menu">
+            <a href="https://github.com/LeonardoCamargoRossato/Analysis_SocioEconomic_Indicator/tree/main" target="_blank">GitHub Projects</a> |
+            <a href="https://github.com/LeonardoCamargoRossato/Papers_Supplementary_Info_SI" target="_blank">Papers Thesis</a> |
+            <a href="https://institutopensemais.com" target="_blank">Platform Courses</a> |
+            <a href="https://institutopensemais.com/saiba-mais-sobre-o-autor/" target="_blank">Portfolio Author</a>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Inject CSS for custom button styling with responsive width
+    st.markdown(
+        """
+        <style>
+        div.stButton > button:first-child {
+            background-color: white;
+            color: black;
+            font-size: 10px;
+            height: 3em;
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid black;
+        }
+        div.stButton > button:first-child:focus {
+            background-color: orange;
+            color: white;
+            border-color: orange;
+            box-shadow: none;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    # add_top_menu()
 
     # Initialize session state for navigation and selected country
     if "page" not in st.session_state:
@@ -38,10 +98,9 @@ def main():
 
     #############################################################################
 
-    # Fixed top navigation buttons
-    st.markdown("## Analisys with Econophysics Technics")
-    col1, col2, col3, col4 = st.columns(4)
-
+    # Top navigation buttons
+    st.markdown("## Analysis with Econophysics Techniques")
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
 
     with col1:
         if st.button("NormalScatters Visualizing"):
@@ -65,22 +124,22 @@ def main():
         from Cities_Compare_code import display_cities_compare
         display_cities_compare(countries)
 
-
     elif st.session_state.page == "NormalScatters":
         from NormalScatter_code import display_normal_scatters
         display_normal_scatters(countries)
 
     elif st.session_state.page == "BinScatters":
-        st.title("BinScatters (Em Desenvolvimento)")
-        st.write("Esta funcionalidade será implementada em breve.")
+        from Binscatter_code import display_binscatters  # type: ignore
+        display_binscatters(countries)
 
     elif st.session_state.page == "ScatterGraph":
-        st.title("ScatterGraph (Em Desenvolvimento)")
-        st.write("Esta funcionalidade será implementada em breve.")
+        from ScatterGraph_code import display_scattergraph # type: ignore
+        display_scattergraph(countries)
 
     elif st.session_state.page == "AnalyzeDataFrame":
-        st.title("Análise de DataFrame (Em Desenvolvimento)")
-        st.write("Esta funcionalidade será implementada em breve.")
+        st.title("Analyze DataFrame (Under Development)")
+        st.write("This feature will be implemented soon.")
+
 
 
 if __name__ == "__main__":
