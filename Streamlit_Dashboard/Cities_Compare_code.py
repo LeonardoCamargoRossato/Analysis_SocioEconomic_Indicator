@@ -47,7 +47,7 @@ def display_cities_compare(countries):
                 df=df, axis_x=city1_index_axis_x, axis_y=city1_index_axis_y, hovername_city_column=city1_index_hovername, 
                 color_city="#ffffff", color_country=color_country, selected_city=city_name
             )
-            st.plotly_chart(fig, key="city1_chart")
+            st.plotly_chart(fig, key="city1_chart", use_container_width=True)
 
     with col2:
         st.markdown("### City 2:")
@@ -84,4 +84,4 @@ def display_cities_compare(countries):
                 df=df2, axis_x=city2_index_axis_x, axis_y=city2_index_axis_y, hovername_city_column=city2_index_hovername, 
                 color_city="#ffffff", color_country=color_country2, selected_city=city2_name
             )
-            st.plotly_chart(fig2, key="city2_chart")
+            st.plotly_chart(fig2, key="city2_chart", use_container_width=True)

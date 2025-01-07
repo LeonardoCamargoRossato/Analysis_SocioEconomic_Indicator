@@ -9,3 +9,6 @@ import sys as sys
 from scipy.optimize import curve_fit
 import statsmodels.api as sm
 from math import *
+import matplotlib.pyplot as plt
+import networkx as nx
+import plotly.io as pio

@@ -61,12 +61,12 @@ macrorregion_color_map = {
 
 # List of colors for different countries
 country_colors = {
-    "Brazil": "green",
-    "Chile": "blue",
-    "Peru": "red",
-    "Mexico": "purple",
-    "El Salvador": "orange",
-    "USA": "brown"
+    "Brazil": "#008000",
+    "Chile": "#0000ff",
+    "Peru": "#ff0000",
+    "Mexico": "#800080",
+    "El Salvador": "#ffa500",
+    "USA": "#a52a2a"
 }
 
 brazil_states_colors = {

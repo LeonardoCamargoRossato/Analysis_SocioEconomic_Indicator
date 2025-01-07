@@ -559,3 +559,421 @@ def create_and_plot_bins_graphs__scatter_x_binscatter(n, df, bin_separation_mode
 # # Wrapper function for interaction
 # def wrapper_plot_interact(x_axis, y_axis, color, hovername, df,height=500, width=1000):
 #     return plot_interact(x_axis, y_axis, color, hovername, df, height, width)
+
+
+
+#
+#
+#
+#
+################################################################################################
+# S c a t t e r  G r a p h    P l o t s
+################################################################################################
+#
+#
+#
+#
+
+#####################
+# Base_on_GCA Process
+#####################
+
+# Converte uma cor hexadecimal para RGB no formato requerido
+def hex_to_rgb(hex_str, opacity=1.0):
+    hex_str = hex_str.lstrip("#")  # Remove o '#' inicial, se existir
+    r, g, b = [int(hex_str[i:i+2], 16) for i in (0, 2, 4)]
+    return f"rgba({r}, {g}, {b}, {opacity})"  # Retorna a string no formato correto
+
+def generate_colorscale(hex_color, color_col):
+    min_val, max_val = min(color_col), max(color_col)
+    diff = max_val - min_val
+    colorscale = []
+
+    if diff > 0:  # Verifica se há valores suficientes para gerar a escala
+        step = 1.0 / diff  # Incremento de normalização
+        for i in range(diff + 1):
+            opacity = i * step
+            colorscale.append([opacity, hex_to_rgb(hex_color, opacity)])
+    else:
+        # Caso haja apenas um valor, usa a cor base
+        colorscale = [[0.0, hex_to_rgb(hex_color, 1.0)], [1.0, hex_to_rgb(hex_color, 1.0)]]
+
+    return colorscale
+
+
+def plot_with_matplotlib(axis_x, axis_y, df_GCA, width_pixels, height_pixels, hover_names):
+    # Convert pixels to inches (assuming a standard resolution of 100 dpi)
+    width_inches = width_pixels / 100.0
+    height_inches = height_pixels / 100.0
+    
+    # Data preparation
+    log_x = np.log(df_GCA[axis_x]);    log_y = np.log(df_GCA[axis_y])
+    
+    # Plotting the graph
+    fig, ax = plt.subplots(figsize=(width_inches, height_inches))
+    ax.scatter(df_GCA[axis_x], df_GCA[axis_y], c='blue', alpha=0.5, label='Data Points')
+    
+    # Fitting a log-log trendline
+    model = sm.OLS(log_y, sm.add_constant(log_x)).fit()
+    predicted = model.predict(sm.add_constant(log_x))
+    ax.plot(df_GCA[axis_x], np.exp(predicted), color='black', label="OLS Fit")
+    ax.set_xscale('log');     ax.set_yscale('log')
+    ax.set_xlabel(axis_x);    ax.set_ylabel(axis_y)
+
+    pixel_positions = []
+    for i in range(len(df_GCA)):
+        x, y = df_GCA[axis_x].iloc[i], df_GCA[axis_y].iloc[i]
+        pixel_coords = ax.transData.transform((x, y))
+        pixel_positions.append(pixel_coords.round(2))
+    
+    # Generate hover_texts
+    hover_texts = [f"original_index: {idx}<br>{name}<br>Pixel: ({int(pixel[0])}, {int(pixel[1])})"
+                   for idx, name, pixel in zip(df_GCA['original_index'], hover_names, pixel_positions)]
+
+    plt.close(fig)  # close the figure without showing it
+    return pixel_positions, hover_texts
+
+def create_gravity_clustering_graph(Cut_Rad, connected_nodes, total_nodes):
+    G = nx.Graph()
+    for i in range(total_nodes):
+        G.add_node(i)
+    for i, nodes in enumerate(connected_nodes):
+        for j in nodes:
+            G.add_edge(i, j)
+    return G
+
+def calculate_graph_and_metrics(Cut_Rad, axis_x, axis_y, index, hover_names, file_name, colorscale_HEX):
+    df_GCA = pd.DataFrame({'x': axis_x, 'y': axis_y, 'original_index': index, 'Hovername': hover_names})
+    # Calculating pixel positions using matplotlib to obtain positions
+    pixel_positions, hover_texts = plot_with_matplotlib('x', 'y', df_GCA, 800, 500, hover_names)
+    
+    # Base on Gravitional Clustering Algorithm
+    def gravity_cluster(Cut_Rad, pixel_positions, index):
+        Cut_Rad_Pixel_x_Pixel = []
+        for i in range(len(pixel_positions)):
+            connected_nodes = [j for j in range(len(pixel_positions)) if i != j 
+                               and np.sqrt((pixel_positions[j][0] - pixel_positions[i][0]) ** 2 + 
+                                           (pixel_positions[j][1] - pixel_positions[i][1]) ** 2) <= Cut_Rad]
+            Cut_Rad_Pixel_x_Pixel.append([index[i], connected_nodes])
+        return Cut_Rad_Pixel_x_Pixel
+
+    def get_degree_for_all_nodes(G, total_nodes):
+        degree_dict = dict(G.degree())
+        degrees = [degree_dict.get(i, 0) for i in range(total_nodes)]
+        return degrees
+
+    Cut_Rad = gravity_cluster(Cut_Rad, pixel_positions, df_GCA['original_index'].values)
+    G = create_gravity_clustering_graph(Cut_Rad, [nodes for _, nodes in Cut_Rad], len(df_GCA))
+    degrees = get_degree_for_all_nodes(G, len(df_GCA))
+    
+    # Create DataFrame with pixel positions
+    df_Pixels = df_GCA.copy()
+    df_Pixels['Pixel_Positions'] = pixel_positions
+    df_Pixels['Degree_List'] = [[df_GCA['original_index'].iloc[j] for j in connected_nodes] 
+                                for i, connected_nodes in Cut_Rad]
+    
+    # Add Degree_G and Degree_ext to df_Pixels
+    df_Pixels['Degree_G'] = degrees
+    df_Pixels['Degree_ext'] = [len(connected_nodes) for _, connected_nodes in Cut_Rad]
+    
+    
+    return G, degrees, df_Pixels
+
+
+# Function to generate the graph map
+def save_graph_GCA_svg(G, hover_names, df_GCA, filename, colorscale_HEX):
+    pos = nx.spring_layout(G, seed=42)  # Arbitrary layout
+    edge_x, edge_y = [], []
+    for edge in G.edges():
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_x.extend([x0, x1, None])
+        edge_y.extend([y0, y1, None])
+
+    edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=1, color="#000000"),
+                            hoverinfo="none", mode="lines")
+
+    node_x, node_y = [], []
+    for node in G.nodes():
+        x, y = pos[node]
+        node_x.append(x)
+        node_y.append(y)
+
+    node_degree = list(dict(G.degree()).values())
+
+    # Custom colors based on "Degree_G"
+    colorscale = generate_colorscale(colorscale_HEX, df_GCA['Degree_G'])
+
+    # Hover texts to include all columns of df_GCA
+    hover_texts_with_index = [f"Index: {idx}<br>{'<br>'.join([f'{col}: {val}' for col, val in row.items()])}"
+                              for idx, row in df_GCA.iterrows()]
+
+    node_trace = go.Scatter(x=node_x, y=node_y, mode="markers", hovertext=hover_texts_with_index,
+                            marker=dict(color=df_GCA['Degree_G'], size=8, line_width=1.0,
+                                        colorbar=dict(thickness=15, title="Node Degree",
+                                                      xanchor="left", titleside="right",
+                                                      tickvals=[0, df_GCA['Degree_G'].max()],
+                                                      ticktext=[0, int(df_GCA['Degree_G'].max())],
+                                                      lenmode='fraction', len=1, outlinewidth=0.5,
+                                                      xpad=0),
+                                        colorscale=colorscale)
+                            )
+
+    # Building Print Graph with "go" library (Plotly)
+    fig = go.Figure(data=[edge_trace, node_trace],
+                    layout=go.Layout(title=f"{filename} Graph based on GCA  |  CutRad=5.svg" , titlefont_size=16,                                      
+                                     showlegend=False, hovermode="closest", margin=dict(b=0, l=0, r=0, t=40),                                                                        
+                                     plot_bgcolor="white", paper_bgcolor="white", width=800, height=400,                                     
+                                     annotations=[dict(text="", showarrow=False, xref="paper", yref="paper")],
+                                     xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                                     yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
+                    )
+
+    # Check if the number of nodes matches the number of municipalities in df_GCA
+    if len(G.nodes()) != len(df_GCA):
+        print(f"Number of nodes in the graph: {len(G.nodes())}")
+        print(f"Number of municipalities in df_GCA: {len(df_GCA)}")
+        print("Number of nodes does not match the number of municipalities.")
+        
+    # Save as .svg file
+    # pio.write_image(fig, f"{filename}_graphGCA.svg")
+    st.plotly_chart(fig)
+
+
+# Function to plot the scatter graph
+def save_scattergraph(axis_x, axis_y, df_GCA, width_pixels, height_pixels, hover_texts, file_name, colorscale_HEX):
+    # Create a graph
+    G = nx.Graph()
+
+    # Add nodes to the graph
+    for idx, row in df_GCA.iterrows():
+        G.add_node(idx, pos=(row[axis_x], row[axis_y]))
+
+    # Add edges to the graph based on the 'Degree_List' column
+    for idx, row in df_GCA.iterrows():
+        neighbors = row['Degree_List']
+        for neighbor_idx in neighbors:
+            G.add_edge(idx, neighbor_idx)
+
+    # Data preparation
+    log_x = np.log(df_GCA[axis_x])
+    log_y = np.log(df_GCA[axis_y])
+
+    # Fitting a log-log trendline
+    model = sm.OLS(log_y, sm.add_constant(log_x)).fit()
+    predicted = np.exp(model.predict(sm.add_constant(log_x)))
+
+    # Custom colors based on "Degree_G"
+    colorscale = generate_colorscale(colorscale_HEX, df_GCA['Degree_G'])
+
+    # Hover_texts to include all columns of df_GCA
+    hover_texts_with_index = [f"Index: {idx}<br>{'<br>'.join([f'{col}: {val}' for col, val in row.items()])}" 
+                              for idx, row in df_GCA.iterrows()]
+
+    # Building Print Graph with "go" library (Plotly)
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=df_GCA[axis_x], y=df_GCA[axis_y], mode='markers', hovertext=hover_texts_with_index, 
+                             showlegend=False, marker=dict(color=df_GCA['Degree_G'], size=8, line_width=1.0,
+                                                           colorbar=dict(thickness=15,title="Node Degree",  
+                                                                         xanchor="left",titleside="right",                                                                          
+                                                                         tickvals=[0, df_GCA['Degree_G'].max()],
+                                                                         ticktext=[0, int(df_GCA['Degree_G'].max())],
+                                                                         lenmode='fraction',len=1, outlinewidth=0.5,                                                                         
+                                                                         xpad=0),
+                                                           colorscale=colorscale)))
+
+    fig.add_trace(go.Scatter(x=df_GCA[axis_x], y=predicted, mode='lines', showlegend=False))
+
+    # Add edges to the plot
+    for edge in G.edges():
+        x0, y0 = G.nodes[edge[0]]['pos']
+        x1, y1 = G.nodes[edge[1]]['pos']
+        fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode='lines', line=dict(color='gray', width=1), showlegend=False))
+
+    fig.update_layout(title=f"{file_name} - Scatter Graph", xaxis_type="log", yaxis_type="log", template="simple_white", 
+                      xaxis_title=axis_x, yaxis_title=axis_y, width=width_pixels, height=height_pixels)
+
+    # Save as .svg file
+    # pio.write_image(fig, f"{filename}_scattergraph.svg")
+
+# Function to plot the scatter graph
+def plot_scattergraph(axis_x, axis_y, df_GCA, width_pixels, height_pixels, hover_texts, file_name, colorscale_HEX):
+    # Create a graph
+    G = nx.Graph()
+
+    # Add nodes to the graph
+    for idx, row in df_GCA.iterrows():
+        G.add_node(idx, pos=(row[axis_x], row[axis_y]))
+
+    # Add edges to the graph based on the 'Degree_List' column
+    for idx, row in df_GCA.iterrows():
+        neighbors = row['Degree_List']
+        for neighbor_idx in neighbors:
+            G.add_edge(idx, neighbor_idx)
+
+    # Data preparation
+    log_x = np.log(df_GCA[axis_x])
+    log_y = np.log(df_GCA[axis_y])
+
+    # Fitting a log-log trendline
+    model = sm.OLS(log_y, sm.add_constant(log_x)).fit()
+    predicted = np.exp(model.predict(sm.add_constant(log_x)))
+
+    # Custom colors based on "Degree_G"
+    colorscale = generate_colorscale(colorscale_HEX, df_GCA['Degree_G'])
+
+    # Hover_texts to include all columns of df_GCA
+    hover_texts_with_index = [f"Index: {idx}<br>{'<br>'.join([f'{col}: {val}' for col, val in row.items()])}" 
+                              for idx, row in df_GCA.iterrows()]
+
+    # Building Print Graph with "go" library (Plotly)
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=df_GCA[axis_x], y=df_GCA[axis_y], mode='markers', hovertext=hover_texts_with_index, 
+                             showlegend=False, marker=dict(color=df_GCA['Degree_G'], size=8, line_width=1.0,
+                                                           colorbar=dict(thickness=15,title="Node Degree",  
+                                                                         xanchor="left",titleside="right",                                                                          
+                                                                         tickvals=[0, df_GCA['Degree_G'].max()],
+                                                                         ticktext=[0, int(df_GCA['Degree_G'].max())],
+                                                                         lenmode='fraction',len=1, outlinewidth=0.5,                                                                         
+                                                                         xpad=0),
+                                                           colorscale=colorscale)))
+
+    fig.add_trace(go.Scatter(x=df_GCA[axis_x], y=predicted, mode='lines', showlegend=False))
+
+    # Add edges to the plot
+    for edge in G.edges():
+        x0, y0 = G.nodes[edge[0]]['pos']
+        x1, y1 = G.nodes[edge[1]]['pos']
+        fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode='lines', line=dict(color='gray', width=1), showlegend=False))
+
+    fig.update_layout(title=f"{file_name} - Scatter Graph", xaxis_type="log", yaxis_type="log", template="simple_white", 
+                      xaxis_title=axis_x, yaxis_title=axis_y, width=width_pixels, height=height_pixels)
+
+    # Save as .svg file
+    # pio.write_image(fig, f"{filename}_scattergraph.svg")
+    st.plotly_chart(fig)
+
+
+
+#######################################
+# Filter Cities / group path proximity
+#######################################
+
+def get_top_cities_by_degree(dataframe, N_cities):
+    """
+    Returns the names (Hovername) of the top N cities with the highest Degree_G.
+    """
+    top_cities = dataframe.nlargest(N_cities, 'Degree_G')['Hovername']
+    return top_cities.tolist()
+
+
+def get_top_cities_degree_paths(dataframe, N_cities):
+    """
+    Returns a list containing the indices in 'Degree_List' of the top N cities with the highest Degree_G.
+    """
+    top_cities = dataframe.nlargest(N_cities, 'Degree_G')['Degree_List']
+    return top_cities.tolist()
+
+
+def get_top_cities_degree_paths_with_hovername(dataframe, N_cities):
+    """
+    Returns a list of lists containing the names (Hovername) corresponding to
+    the values in 'Degree_List' of the top N cities with the highest Degree_G.
+    """
+    # Get the 'Degree_List' of the top N cities with the highest Degree_G
+    paths = get_top_cities_degree_paths(dataframe, N_cities)
+
+    # List to store hovername paths
+    hovername_paths = []
+
+    # Iterate over each path and map indices to hovernames
+    for path in paths:
+        # Ensure path is evaluated as a list of indices
+        path = eval(path) if isinstance(path, str) else path  # Evaluate string as list
+        hovername_path = []
+        for index in path:
+            # Find the hovername corresponding to the original_index
+            hovername = dataframe.loc[dataframe['original_index'] == index, 'Hovername'].values
+            if len(hovername) > 0:
+                hovername_path.append(hovername[0])
+        hovername_paths.append(hovername_path)
+    
+    return hovername_paths
+
+
+def path_list_top_cities(dataframe, N_cities):
+    """
+    Returns a unique list containing the names (Hovername) of all cities
+    connected to the top N cities with the highest Degree_G.
+    """
+    hovername_paths = get_top_cities_degree_paths_with_hovername(dataframe, N_cities)
+    path_list = []
+    for lst in hovername_paths:
+        path_list.extend(lst)  # Add all hovernames directly to the final list
+    return path_list
+
+def plot_scatter_loglog(df, axis_x, axis_y, hovername, fixed_color, hubs, cor_hubs, paths, color_paths):
+    dados_copy = df.copy()
+    # Criar colunas para diferenciar hubs e paths
+    dados_copy['is_hub'] = dados_copy[hovername].apply(lambda cidade: cidade in hubs)
+    dados_copy['is_path'] = dados_copy[hovername].apply(lambda cidade: cidade in paths)
+    dados_copy['hover_text'] = ( "Cidade: " + dados_copy[hovername] +
+                                 "<br>Pop: " + dados_copy[axis_x].astype(str) +
+                                 "<br>IDHM: " + dados_copy[axis_y].astype(str) +
+                                 "<br>Degree_G: " + dados_copy['Degree_G'].astype(str) +
+                                 "<br>Degree_List: " + dados_copy['Degree_List'].astype(str)
+    )
+    # Separar os pontos para hubs, paths e não-hubs
+    hubs_data = dados_copy[dados_copy['is_hub']]
+    paths_data = dados_copy[dados_copy['is_path']]
+    non_special_data = dados_copy[~dados_copy['is_hub'] & ~dados_copy['is_path']]
+
+    # Criar a figura manualmente (não usar px.scatter para evitar duplicação de hover)
+    fig = go.Figure()
+
+    # Adicionar pontos dos não-hubs (default)
+    fig.add_trace(go.Scatter(
+        x=non_special_data[axis_x],
+        y=non_special_data[axis_y],
+        mode='markers',
+        marker=dict(color=fixed_color, size=7, opacity=0.5),
+        text=non_special_data['hover_text'],
+        hoverinfo='text',  # Apenas texto personalizado será exibido
+        name='Outros'
+    ))
+
+    # Adicionar pontos dos paths
+    fig.add_trace(go.Scatter(
+        x=paths_data[axis_x],
+        y=paths_data[axis_y],
+        mode='markers',
+        marker=dict(color=color_paths, size=7, symbol='circle'),
+        text=paths_data['hover_text'],
+        hoverinfo='text',  # Apenas texto personalizado será exibido
+        name='Paths'
+    ))
+
+    # Adicionar pontos dos hubs
+    fig.add_trace(go.Scatter(
+        x=hubs_data[axis_x],
+        y=hubs_data[axis_y],
+        mode='markers',
+        marker=dict(color=cor_hubs, size=12, symbol='star', 
+                    line=dict(color='black', width=2)),
+        text=hubs_data['hover_text'],
+        hoverinfo='text',  # Apenas texto personalizado será exibido
+        name='Hubs'
+    ))
+    
+    # Configurações do layout
+    fig.update_layout(
+        template="simple_white",
+        xaxis=dict(title=axis_x, type='log'),
+        yaxis=dict(title=axis_y, type='log'),
+        height=500
+    )
+
+    st.plotly_chart(fig)
+

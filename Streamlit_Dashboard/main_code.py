@@ -120,9 +120,32 @@ def main():
 
     # Page redirection logic
     if st.session_state.page == "Main Dashboard":
-        st.title("Main Dashboard: Cities Compare")
-        from Cities_Compare_code import display_cities_compare
-        display_cities_compare(countries)
+        st.title("Main Dashboard: Comparing Cities, Countries and Macrorregions")
+        
+        col4, col5, col6 = st.columns([1, 1, 1])    
+
+        # Caminho correto para as imagens
+        image_path = "./images/"
+
+        # Primeiro coluna
+        with col4:
+            st.image(f"{image_path}comparing_cities.png", use_container_width=True)
+
+            if st.button("Comparing Cities"):
+                set_page("comparing_cities")
+
+        # Segunda coluna
+        with col5:
+            st.image(f"{image_path}comparing_countries.png", use_container_width=True)
+            if st.button("Comparing Countries"):
+                set_page("comparing_countries")
+
+        # Terceira coluna
+        with col6:
+            st.image(f"{image_path}comparing_macrorregions.png", use_container_width=True)
+            if st.button("Comparing Macrorregions"):
+                set_page("comparing_macrorregions")
+
 
     elif st.session_state.page == "NormalScatters":
         from NormalScatter_code import display_normal_scatters
@@ -139,8 +162,27 @@ def main():
     elif st.session_state.page == "AnalyzeDataFrame":
         st.title("Analyze DataFrame (Under Development)")
         st.write("This feature will be implemented soon.")
+    
 
 
+    elif st.session_state.page == "comparing_cities":
+        from Cities_Compare_code import display_cities_compare
+        display_cities_compare(countries)
+
+    elif st.session_state.page == "comparing_countries":
+        from Binscatter_code import display_binscatters  # type: ignore
+        display_binscatters(countries)
+
+    elif st.session_state.page == "comparing_macrorregions":
+        from ScatterGraph_code import display_scattergraph # type: ignore
+        display_scattergraph(countries)
+
+    elif st.session_state.page == "AnalyzeDataFrame":
+        st.title("Analyze DataFrame (Under Development)")
+        st.write("This feature will be implemented soon.")
+
+    # from Cities_Compare_code import display_cities_compare
+    # display_cities_compare(countries)
 
 if __name__ == "__main__":
     main()

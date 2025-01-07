@@ -18,6 +18,8 @@ def display_scattergraph(countries):
         "<h4 style='text-align: left; color: white;'>Analysis Options</h4>",
         unsafe_allow_html=True
     )
+    st.markdown("Caution: ScatterGraph and BGCA with Country Brazil, USA and Big Macrorregions "
+                "usually take longer between 1min-5min to be loaded / plotted.")
 
     with st.sidebar:
         # Styling for full-width buttons
@@ -174,7 +176,7 @@ def display_scattergraph(countries):
             st.session_state.visualization_mode = "Plot BGCA graph"
 
     with col6:
-        if st.button("BGCA (Graph) - with colors", key="plot_scattergraph_colors"):
+        if st.button("NormalScatter", key="plot_scattergraph_colors"):
             st.session_state.visualization_mode = "Plot ScatterGraph Colors"
 
 
@@ -182,9 +184,18 @@ def display_scattergraph(countries):
     # Render the selected plot based on the active mode
     fig = None
     if st.session_state.visualization_mode == "Plot ScatterGraph":
-        fig = Plot_Scatter(df_selected, axis_x, axis_y, color_column, hovername, country)
+        Cut_Rad = st.slider("Select Cut Radius Circle (Arbitrary Value)", min_value=1, max_value=100, value=5, step=1)
+        colorscale_HEX = specific_color; filename = country
+        G, degree, df_Pixels = calculate_graph_and_metrics(Cut_Rad, df_selected[axis_x], df_selected[axis_y], df_selected.index, hovername, filename, colorscale_HEX)
+        # save_graph_GCA_svg(G, hovername, df_Pixels, filename, colorscale_HEX)
+        plot_scattergraph('x', 'y', df_Pixels, 800, 500, df_Pixels['Hovername'], filename, colorscale_HEX)
+
     elif st.session_state.visualization_mode == "Plot BGCA graph":
-        fig = Plot_Scatter_No_Regions(df_selected, axis_x, axis_y, hovername, specific_color)
+        Cut_Rad = st.slider("Select Cut Radius Circle (Arbitrary Value)", min_value=1, max_value=100, value=5, step=1)
+        colorscale_HEX = specific_color; filename = country
+        G, degree, df_Pixels = calculate_graph_and_metrics(Cut_Rad, df_selected[axis_x], df_selected[axis_y], df_selected.index, hovername, filename, colorscale_HEX)
+        save_graph_GCA_svg(G, hovername, df_Pixels, filename, colorscale_HEX)
+
     elif st.session_state.visualization_mode == "Plot ScatterGraph Colors":
         fig = Plot_Scatter_No_Trendline(df_selected, axis_x, axis_y, hovername, specific_color)
 
@@ -194,3 +205,9 @@ def display_scattergraph(countries):
 
     st.markdown("<hr style='border: 0.1 px solid white;'>", unsafe_allow_html=True)
 
+    fixed_color = '#5e347d'  # Cor padrão para os pontos
+    hubs =  get_top_cities_by_degree(df_selected, 5)
+    cor_hubs = '#f59542'  # Cor para as cidades na lista de hubs
+    paths = path_list_top_cities(df_selected, 5)[0]
+    color_paths = '#f59542'  # Cor para as cidades na lista de paths
+    plot_scatter_loglog(df_selected, axis_x, axis_y, hovername, fixed_color, hubs, cor_hubs, paths, color_paths)
