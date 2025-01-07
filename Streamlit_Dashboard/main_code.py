@@ -120,31 +120,38 @@ def main():
 
     # Page redirection logic
     if st.session_state.page == "Main Dashboard":
-        st.title("Main Dashboard: Comparing Cities, Countries and Macrorregions")
-        
+      
         col4, col5, col6 = st.columns([1, 1, 1])    
 
         # Caminho correto para as imagens
-        image_path = "./images/"
+        # image_path = "./images/"
+        
+        # Caminho absoluto dinâmico para a pasta de imagens
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(current_dir, "images")
 
-        # Primeiro coluna
-        with col4:
-            st.image(f"{image_path}comparing_cities.png", use_container_width=True)
+        if st.session_state.page == "Main Dashboard":
+                st.write("## Main Dashboard: Comparing Cities, Countries and Macrorregions")
 
-            if st.button("Comparing Cities"):
-                set_page("comparing_cities")
+                col4, col5, col6 = st.columns([1, 1, 1])
 
-        # Segunda coluna
-        with col5:
-            st.image(f"{image_path}comparing_countries.png", use_container_width=True)
-            if st.button("Comparing Countries"):
-                set_page("comparing_countries")
+                # Primeiro coluna
+                with col4:
+                    st.image(os.path.join(image_path, "comparing_cities.png"), use_container_width=True)
+                    if st.button("Comparing Cities"):
+                        set_page("comparing_cities")
 
-        # Terceira coluna
-        with col6:
-            st.image(f"{image_path}comparing_macrorregions.png", use_container_width=True)
-            if st.button("Comparing Macrorregions"):
-                set_page("comparing_macrorregions")
+                # Segunda coluna
+                with col5:
+                    st.image(os.path.join(image_path, "comparing_countries.png"), use_container_width=True)
+                    if st.button("Comparing Countries"):
+                        set_page("comparing_countries")
+
+                # Terceira coluna
+                with col6:
+                    st.image(os.path.join(image_path, "comparing_macrorregions.png"), use_container_width=True)
+                    if st.button("Comparing Macrorregions"):
+                        set_page("comparing_macrorregions")
 
 
     elif st.session_state.page == "NormalScatters":
