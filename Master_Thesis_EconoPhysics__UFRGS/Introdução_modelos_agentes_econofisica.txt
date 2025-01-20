@@ -1,0 +1,13 @@
+\section{Introdução à modelos de agentes na econofísica:}
+
+
+\textit{Como primeiro aspecto para o entendimento de modelagem baseada em agentes (MBA) é que assim como, o termo "agente", não existe uma definição precisa para tais, nem um consenso acadêmico sobre assunto.} 
+
+Dado isso, é interessante elencar uma base simples de definição, como no trecho que \citeonline{Bonabeau2002} menciona \textit{"na modelagem baseada em agentes o sistema é modelado como uma coleção de entidades autônomas de tomadas de decisão chamadas agentes. No nível mais simples, um modelo consiste de um sistema de agentes e as relações entre estes."} 
+
+Todavia, há como desenvolvermos, de forma autoral, um pouco desse conceito, considerando que MBA são uma classe de modelos computacionais que descrevem sistemas complexos a partir da interação entre seus componentes individuais, chamados de agentes. E com isso, podemos relacionar com a Econofísica pois esses modelos são frequentemente usados dentro da área, principalmente, para simular o comportamento dos sistemas socioeconômicos. Tais simulações, por princípio, partem da ideia de que os sistemas são formados por uma coleção de agentes que interagem entre si e dessa interação, ocorre a emergência de fenômenos. Cada agente pode ter seu próprio conjunto de regras e tomada de decisão, que são baseadas em uma variedade de fatores e podem interagir com um número de "n" $\;$ vizinhos. 
+
+Ao simular o comportamento desses agentes em um modelo computacional, é possível estudar a dinâmica do sistema e como ele responde a diferentes eventos e condições. E tais modelos podem variar em sua complexidade, desde mais simples, assumindo que todos os agentes têm comportamento idêntico, até os mais sofisticados, que consideram a heterogeneidade dos agentes, suas interações e tendência de ação futura.
+
+
+Além disso, esse padrão de modelagem também pode ser usado para simular o impacto de diferentes perturbações e mudanças nas condições do sistema, permitindo que seja possível, a partir desses, interpretar e avaliar múltiplos cenários. No entanto, é importante ressaltar que os modelos de agentes geralmente não são capazes de prever com precisão o comportamento de sistemas complexos, pois estes têm como característica a imprevisibilidade e podem apresentar mudanças bruscas com pequenas alterações nas condições iniciais e de contorno (ou com a perturbação de um determinado evento). No entanto, eles podem fornecer insights valiosos sobre a dinâmica dos sistemas, contribuindo a uma melhor compreensão de seus comportamentos e o retorno a diferentes condições e estímulos.
