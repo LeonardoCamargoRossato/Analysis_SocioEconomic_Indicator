@@ -1,43 +1,33 @@
-📊 Analysis Socio-Economic Indicator
+Analysis SocioEconomic Indicator
 
-Este repositório contém uma aplicação interativa desenvolvida em Python + Streamlit para análise, comparação e visualização de indicadores socioeconômicos entre cidades, regiões e países.
+This repository contains an interactive data analysis application built with Python and Streamlit, focused on the exploration, comparison, and visualization of socio-economic indicators across cities, regions, and countries.
 
-O projeto foi concebido como uma ferramenta analítica para explorar padrões em dados complexos, com foco em visual analytics, comparações multivariadas e interpretação de indicadores.
+The project was developed as a visual analytics tool to support the understanding of complex datasets through modular analysis components and interactive visualizations.
 
-🚀 Visão Geral
+Overview
 
-A aplicação permite:
+The application allows the user to:
 
-Comparar indicadores entre cidades e regiões
-Explorar relações entre variáveis com diferentes tipos de gráficos
-Realizar análises visuais interativas
-Navegar entre diferentes módulos de análise
-Utilizar dados estruturados em arquivos .csv
+Compare socio-economic indicators between cities and regions
+Explore relationships between variables using different types of scatter plots
+Analyze trends through binscatter techniques
+Navigate between multiple analytical modules
+Work with structured datasets stored in CSV format
 
-O sistema foi desenvolvido com uma arquitetura modular, onde cada tipo de análise possui seu próprio módulo independente.
+The system follows a modular architecture, where each type of analysis is implemented as an independent component.
 
-🧠 Principais Funcionalidades
-📍 Comparação entre cidades (Cities Compare)
-📈 Scatter plots e variações analíticas
-🔵 Binscatter para análise de tendência
-📊 Visualizações customizadas com Plotly
-🎨 Padronização de cores por regiões e países
-⚙️ Sistema modular de funções reutilizáveis
-🗂️ Estrutura do Projeto
+Project Structure
 Analysis_SocioEconomic_Indicator/
-│
+
 ├── Streamlit_Dashboard/
-│   │
 │   ├── main_code.py
 │   ├── functions.py
 │   ├── libraries.py
 │   ├── colors_countries_and_regions.py
-│   │
 │   ├── Binscatter_code.py
 │   ├── Cities_Compare_code.py
 │   ├── NormalScatter_code.py
 │   ├── ScatterGraph_code.py
-│   │
 │   ├── tabelas_csv/
 │   ├── images/
 │   ├── __pycache__/
@@ -47,75 +37,83 @@ Analysis_SocioEconomic_Indicator/
 ├── Master_Thesis_EconoPhysics/
 ├── NormalScatter/
 ├── ScatterGraph/
-│
-└── Outros arquivos auxiliares
-📁 Descrição das Pastas e Arquivos
-🔹 Streamlit_Dashboard/
+Description of Components
+Streamlit_Dashboard/
 
-É o núcleo principal da aplicação web.
+This is the main application layer, responsible for the user interface and orchestration of all analysis modules.
 
 main_code.py
-
-Arquivo principal da aplicação Streamlit.
-Responsável por:
-
-Gerenciar a interface
-Controlar a navegação entre módulos
-Integrar todas as funcionalidades
+Entry point of the application. Controls navigation, layout, and interaction between modules.
 functions.py
-
-Contém funções auxiliares reutilizáveis, como:
-
-Tratamento de dados
-Filtros
-Manipulação de DataFrames
+Contains reusable functions for data processing, filtering, and manipulation.
 libraries.py
-
-Centraliza as importações do projeto, garantindo organização e padronização.
-
+Centralizes imports and dependencies used across the project.
 colors_countries_and_regions.py
+Defines visual standards (color mappings) for countries and regions to ensure consistency across plots.
+Analysis Modules
 
-Define os padrões de cores utilizados para:
-
-Países
-Regiões
-Grupos de análise
-
-Importante para consistência visual nos gráficos.
-
-📊 Módulos de Análise
-
-Cada arquivo representa um tipo específico de análise:
+Each module encapsulates a specific analytical approach:
 
 Binscatter_code.py
-Implementa gráficos de binscatter
-Usado para identificar tendências médias em dados dispersos
+Implements binscatter plots for identifying average trends in noisy data.
 Cities_Compare_code.py
-Comparação direta entre cidades
-Permite análise relativa de indicadores
+Provides direct comparison between cities based on selected indicators.
 NormalScatter_code.py
-Scatter plots tradicionais
-Visualização direta da relação entre variáveis
+Standard scatter plot analysis for visualizing relationships between variables.
 ScatterGraph_code.py
-Versão mais avançada/customizada de scatter plots
-Possivelmente integra múltiplas dimensões ou estilizações
-📂 tabelas_csv/
+Extended/custom scatter plot implementation with additional visual or analytical features.
+Data and Assets
+tabelas_csv/
+Contains all datasets used in the application. These are structured socio-economic indicators in CSV format.
+images/
+Stores images used in the interface (logos, backgrounds, etc.).
+pycache/
+Automatically generated Python cache files.
+requirements.txt
+Lists all Python dependencies required to run the project.
+Additional Directories
+GraphGCA/
+Master_Thesis_EconoPhysics/
+NormalScatter/
+ScatterGraph/
 
-Contém os datasets utilizados no sistema.
+These directories appear to contain auxiliary scripts, experiments, or earlier versions of analytical components related to the project development and research context.
 
-Dados estruturados de indicadores socioeconômicos
-Base para todas as análises realizadas
-🖼️ images/
+How to Run
 
-Armazena imagens utilizadas na interface:
+Clone the repository:
 
-Logos
-Elementos visuais
-Apoio gráfico ao dashboard
-⚙️ __pycache__/
+git clone https://github.com/LeonardoCamargoRossato/Analysis_SocioEconomic_Indicator.git
+cd Analysis_SocioEconomic_Indicator/Streamlit_Dashboard
 
-Arquivos gerados automaticamente pelo Python (pode ser ignorado).
+Install dependencies:
 
-📦 requirements.txt
+pip install -r requirements.txt
 
-Lista de dependências do projeto.
+Run the application:
+
+streamlit run main_code.py
+Architecture
+
+The project follows a layered structure:
+
+Interface layer: Streamlit (main_code.py)
+Analysis layer: modular scripts (*_code.py)
+Data layer: CSV files
+Utility layer: shared functions and configurations
+
+This design allows the system to be extended or integrated into more robust architectures, such as APIs or full-stack applications.
+
+Possible Extensions
+Integration with databases (PostgreSQL, Supabase, etc.)
+Backend API (FastAPI or Flask)
+Frontend decoupling (React or similar frameworks)
+User data upload and dynamic dataset handling
+Automated report generation
+Authentication and multi-user support
+Author
+
+Leonardo Rossato
+PhD Student at ITA
+Physicist and Data Scientist
+President at ICTQ Foton
