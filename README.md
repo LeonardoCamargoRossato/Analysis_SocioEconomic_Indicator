@@ -1,119 +1,89 @@
-Analysis SocioEconomic Indicator
+<div align="center">
 
-This repository contains an interactive data analysis application built with Python and Streamlit, focused on the exploration, comparison, and visualization of socio-economic indicators across cities, regions, and countries.
+# Socioeconomic Analytics
 
-The project was developed as a visual analytics tool to support the understanding of complex datasets through modular analysis components and interactive visualizations.
+### Data Intelligence & Visual Analytics Platform
 
-Overview
+**Interactive tools for exploring, comparing and visualizing socioeconomic indicators across cities, regions and countries.**
 
-The application allows the user to:
+![Tier](https://img.shields.io/badge/Portfolio-Tier%20A-0A66C2?style=for-the-badge) ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
 
-Compare socio-economic indicators between cities and regions
-Explore relationships between variables using different types of scatter plots
-Analyze trends through binscatter techniques
-Navigate between multiple analytical modules
-Work with structured datasets stored in CSV format
+</div>
 
-The system follows a modular architecture, where each type of analysis is implemented as an independent component.
+## The Problem
 
-Project Structure
-Analysis_SocioEconomic_Indicator/
+Socioeconomic datasets are multidimensional and difficult to interpret through static tables alone. This project turns those datasets into interactive analytical workflows that help users compare locations, inspect relationships between indicators and identify patterns visually.
 
-├── Streamlit_Dashboard/
-│   ├── main_code.py
-│   ├── functions.py
-│   ├── libraries.py
-│   ├── colors_countries_and_regions.py
-│   ├── Binscatter_code.py
-│   ├── Cities_Compare_code.py
-│   ├── NormalScatter_code.py
-│   ├── ScatterGraph_code.py
-│   ├── tabelas_csv/
-│   ├── images/
-│   ├── __pycache__/
-│   └── requirements.txt
-│
-├── GraphGCA/
-├── Master_Thesis_EconoPhysics/
-├── NormalScatter/
-├── ScatterGraph/
-Description of Components
-Streamlit_Dashboard/
+## Solution
 
-This is the main application layer, responsible for the user interface and orchestration of all analysis modules.
+A modular Python/Streamlit application combines data processing, reusable analytical components and interactive visualization in a single interface. The project grew from econophysics research and evolved into a reusable visual-analytics toolkit.
 
-main_code.py
-Entry point of the application. Controls navigation, layout, and interaction between modules.
-functions.py
-Contains reusable functions for data processing, filtering, and manipulation.
-libraries.py
-Centralizes imports and dependencies used across the project.
-colors_countries_and_regions.py
-Defines visual standards (color mappings) for countries and regions to ensure consistency across plots.
+## Key Capabilities
+
+- Compare socioeconomic indicators between cities and regions
+- Explore variable relationships with multiple scatter-plot approaches
+- Analyze trends using binscatter techniques
+- Navigate independent analytical modules from one interface
+- Work with structured CSV datasets
+- Maintain consistent country/region visual mappings
+
+## Architecture
+
+```text
+User
+  ↓
+Streamlit Interface (main_code.py)
+  ↓
 Analysis Modules
+  ├─ Binscatter
+  ├─ Cities Compare
+  ├─ Normal Scatter
+  └─ Scatter Graph
+  ↓
+Shared Processing / Utilities
+  ↓
+CSV Data Layer
+```
 
-Each module encapsulates a specific analytical approach:
+## Tech Stack
 
-Binscatter_code.py
-Implements binscatter plots for identifying average trends in noisy data.
-Cities_Compare_code.py
-Provides direct comparison between cities based on selected indicators.
-NormalScatter_code.py
-Standard scatter plot analysis for visualizing relationships between variables.
-ScatterGraph_code.py
-Extended/custom scatter plot implementation with additional visual or analytical features.
-Data and Assets
-tabelas_csv/
-Contains all datasets used in the application. These are structured socio-economic indicators in CSV format.
-images/
-Stores images used in the interface (logos, backgrounds, etc.).
-pycache/
-Automatically generated Python cache files.
-requirements.txt
-Lists all Python dependencies required to run the project.
-Additional Directories
-GraphGCA/
-Master_Thesis_EconoPhysics/
-NormalScatter/
-ScatterGraph/
+`Python` · `Streamlit` · `Jupyter` · `Data Visualization` · `Visual Analytics` · `CSV/Data Processing`
 
-These directories appear to contain auxiliary scripts, experiments, or earlier versions of analytical components related to the project development and research context.
+## Project Structure
 
-How to Run
+```text
+Streamlit_Dashboard/
+├── main_code.py
+├── functions.py
+├── libraries.py
+├── colors_countries_and_regions.py
+├── Binscatter_code.py
+├── Cities_Compare_code.py
+├── NormalScatter_code.py
+├── ScatterGraph_code.py
+├── tabelas_csv/
+└── requirements.txt
+```
 
-Clone the repository:
+Additional directories preserve research, experiments and earlier analytical components, including `GraphGCA/`, `Master_Thesis_EconoPhysics/`, `NormalScatter/` and `ScatterGraph/`.
 
+## Run Locally
+
+```bash
 git clone https://github.com/LeonardoCamargoRossato/Analysis_SocioEconomic_Indicator.git
 cd Analysis_SocioEconomic_Indicator/Streamlit_Dashboard
-
-Install dependencies:
-
 pip install -r requirements.txt
-
-Run the application:
-
 streamlit run main_code.py
-Architecture
+```
 
-The project follows a layered structure:
+## Engineering Perspective
 
-Interface layer: Streamlit (main_code.py)
-Analysis layer: modular scripts (*_code.py)
-Data layer: CSV files
-Utility layer: shared functions and configurations
+The current architecture separates interface, analysis, data and utility concerns, making the system a useful bridge between scientific research code and a product-oriented analytics application.
 
-This design allows the system to be extended or integrated into more robust architectures, such as APIs or full-stack applications.
+## Portfolio Classification
 
-Possible Extensions
-Integration with databases (PostgreSQL, Supabase, etc.)
-Backend API (FastAPI or Flask)
-Frontend decoupling (React or similar frameworks)
-User data upload and dynamic dataset handling
-Automated report generation
-Authentication and multi-user support
-Author
+**Tier A — Featured Portfolio Project.** Selected to represent data engineering, visual analytics and the transformation of research methods into an interactive software solution.
 
-Leonardo Rossato
-PhD Student at ITA
-Physicist and Data Scientist
-President at ICTQ Foton
+---
+
+**Leonardo Camargo Rossato** · Developer & Solution Architect · AI, Data & Deep Tech
