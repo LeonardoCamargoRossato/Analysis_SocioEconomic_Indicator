@@ -84,6 +84,12 @@ The current architecture separates interface, analysis, data and utility concern
 
 **Tier A — Featured Portfolio Project.** Selected to represent data engineering, visual analytics and the transformation of research methods into an interactive software solution.
 
+## Related Portfolios
+
+**Personal Technical Portfolio:** https://leonardocamargorossato.github.io/LCR-SolutionsArchitecture-IA-Quantum/#/
+
+**Cities Comparing Research Platform:** https://leonardocamargorossato.github.io/CitiesComparing_ResearchPlatform/
+
 ---
 
 **Leonardo Camargo Rossato** · Developer & Solution Architect · AI, Data & Deep Tech
